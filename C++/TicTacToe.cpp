@@ -1,191 +1,202 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
+#include <string>
 
-char matrix[3][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}};
-char player1[15], player2[15];
-int count = 0;
+using namespace std;
 
-void box()
+class TicTacToe
 {
-    int i, j;
-    for (i = 0; i < 3; i++)
+private:
+    char matrix[3][3];                 // Game board
+    string player1, player2;
+    int count;
+
+public:
+    TicTacToe();                       // Constructor to initialize game
+    void displayBoard();               // Function to display the board
+    char checkWin();                   // Function to check the winning condition
+    void getPlayerNames();             // Function to get player names
+    void playerMove(int player);       // Function for player move
+    void playGame();                   // Main function to play the game
+    void displayMenu();                // Function to display the game menu
+    void howToPlay();                  // Function to display instructions
+};
+
+TicTacToe::TicTacToe()
+{
+    count = 0;
+    
+    char num = '1';
+    for (int i = 0; i < 3; i++)
     {
-        printf("||");
-        for (j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++)
         {
-            printf(" %c ||", matrix[i][j]);
+            matrix[i][j] = num++;
         }
-        printf("\n||---||---||---||\n");
     }
 }
 
-char win()
+void TicTacToe::displayBoard()
 {
-    int i;
-    // Row and column checks
-    for (i = 0; i < 3; i++)
+    cout << "||---||---||---||" << endl;
+    for (int i = 0; i < 3; i++)
     {
-        if (matrix[i][0] == matrix[i][1] && matrix[i][1] == matrix[i][2]) // Row check
+        cout << "||";
+        for (int j = 0; j < 3; j++)
+        {
+            cout << " " << matrix[i][j] << " ||";
+        }
+        cout << endl << "||---||---||---||" << endl;
+    }
+}
+
+char TicTacToe::checkWin()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (matrix[i][0] == matrix[i][1] && matrix[i][1] == matrix[i][2])
             return matrix[i][0];
-        if (matrix[0][i] == matrix[1][i] && matrix[1][i] == matrix[2][i]) // Column check
+        if (matrix[0][i] == matrix[1][i] && matrix[1][i] == matrix[2][i])
             return matrix[0][i];
     }
-    // Diagonal checks
-    if (matrix[0][0] == matrix[1][1] && matrix[1][1] == matrix[2][2]) // Diagonal-1
+  
+    if (matrix[0][0] == matrix[1][1] && matrix[1][1] == matrix[2][2])
         return matrix[0][0];
-    if (matrix[0][2] == matrix[1][1] && matrix[1][1] == matrix[2][0]) // Diagonal-2
+    if (matrix[0][2] == matrix[1][1] && matrix[1][1] == matrix[2][0])
         return matrix[0][2];
 
-    return '$';
+    return '$'; // Return '$' if no one has won
 }
 
-void input()
+void TicTacToe::getPlayerNames()
 {
-    int i, j;
-    char n, a;
+    cout << "\nEnter player's name who is choosing 'X': ";
+    getline(cin, player1);
+    cout << "\nWelcome " << player1 << "! Your icon is 'X'.";
 
-    while (1)
+    cout << "\nEnter player's name who is choosing 'O': ";
+    getline(cin, player2);
+    cout << "\nWelcome " << player2 << "! Your icon is 'O'.";
+}
+
+
+void TicTacToe::playerMove(int player)
+{
+    char move;
+    bool validMove = false;
+
+    while (!validMove)
     {
-        printf("\n\n\nTurn for %s....\n", player1);
-        count++;
-        scanf(" %c", &n);
-        fflush(stdin);
+        cout << "\n\n\nTurn for " << (player == 1 ? player1 : player2) << " ('" << (player == 1 ? 'X' : 'O') << "')...\n";
+        cin >> move;
 
-        int validMove = 0; // To check if the move is valid
-        for (i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            for (j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
-                if (n == matrix[i][j])
+                if (matrix[i][j] == move) 
                 {
-                    if (count % 2 == 0)
-                        matrix[i][j] = 'O';
-                    else
-                        matrix[i][j] = 'X';
-                    validMove = 1;
+                    matrix[i][j] = (player == 1 ? 'X' : 'O');
+                    validMove = true;
+                    count++;
                 }
             }
         }
 
-        // Asking again, if the move is invalid
         if (!validMove)
         {
-            printf("Invalid move, try again.\n");
-            count--;
-            continue;
+            cout << "Invalid move, try again.\n";
+        }
+    }
+
+    system("cls");
+    displayBoard();
+}
+
+void TicTacToe::playGame()
+{
+    char result;
+    int turn = 1;
+
+    while (count < 9)
+    {
+        playerMove(turn); 
+        result = checkWin();
+
+        if (result == 'X')
+        {
+            cout << "\n\nCongratulations " << player1 << "! You have won the game!!!!";
+            return;
+        }
+        else if (result == 'O')
+        {
+            cout << "\n\nCongratulations " << player2 << "! You have won the game!!!!";
+            return;
         }
 
+        turn = (turn == 1 ? 2 : 1);
+    }
+
+    cout << "\n\nIt's a tie!!!!!";
+}
+
+void TicTacToe::displayMenu()
+{
+    int choice;
+
+    while (true)
+    {
         system("cls");
-        box();
-        a = win();
+        cout << "\n1. Start the game.";
+        cout << "\n2. How to play?";
+        cout << "\n3. Quit the game.";
+        cout << "\n\nEnter your choice: ";
+        cin >> choice;
+        cin.ignore();
 
-        // Check for a winner or tie
-        if (a == 'X')
+        switch (choice)
         {
-            printf("\n\nCongratulation %s! You have won the game!!!!", player1);
-            count = 0;
+        case 1:
+            system("cls");
+            getPlayerNames();
+            system("pause");
+            system("cls");
+            displayBoard();
+            playGame();
+            cout << "\n\n\n\t\t\t\tGAME OVER\n";
+            system("pause");
             break;
-        }
-        else if (a == '$' && count == 9)
-        {
-            printf("\n\n\n\tIt's a tie!!!!!");
-            count = 0;
+
+        case 2:
+            howToPlay();
             break;
-        }
 
-        printf("\n\n\nTurn for %s....\n", player2);
-        count++;
-        scanf(" %c", &n);
-        fflush(stdin);
+        case 3:
+            exit(0); // Exit the game
+            break;
 
-        validMove = 0; // Reset for player 2's move
-        for (i = 0; i < 3; i++)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (n == matrix[i][j])
-                {
-                    if (count % 2 == 0)
-                        matrix[i][j] = 'O';
-                    else
-                        matrix[i][j] = 'X';
-                    validMove = 1;
-                }
-            }
-        }
-
-        // Asking again, if player 2's move was invalid
-        if (!validMove)
-        {
-            printf("Invalid move, try again.\n");
-            count--;
-            continue;
-        }
-
-        system("cls");
-        box();
-        a = win();
-        if (a == 'O')
-        {
-            printf("\n\n\n\tCongratulation %s! You have won the game!!!!", player2);
+        default:
+            cout << "\nInvalid choice, please try again.";
             break;
         }
     }
+}
+
+void TicTacToe::howToPlay()
+{
+    system("cls");
+    cout << "\n\n\t\t\t\t:_INSTRUCTIONS:_\n";
+    cout << "\n\tThe game is played on a grid that's 3 squares by 3 squares.\n";
+    cout << "\tYou are X, your friend is O. Players take turns putting their marks in empty squares.\n";
+    cout << "\tThe first player to get 3 of their marks in a row (up, down, across, or diagonally) is the winner.\n";
+    cout << "\tWhen all 9 squares are full, the game is over.\n\n\t\t\t";
+    system("pause");
 }
 
 int main()
 {
-    system("Color 3F");
-    int choice;
-
-Label1:
-    system("cls");
-    printf("\n1. Start the game.");
-    printf("\n2. How to play?");
-    printf("\n3. Quit the game.");
-    printf("\n\nEnter your choice: ");
-    scanf("%d", &choice);
-
-    switch (choice)
-    {
-    case 1:
-        fflush(stdin);
-        system("cls");
-        printf("\nEnter player's name who is choosing 'X': ");
-        fflush(stdin);
-        gets(player1);
-        printf("\nWelcome %s! Your icon is 'X'.", player1);
-
-        printf("\nEnter player's name who is choosing 'O': ");
-        fflush(stdin);
-        gets(player2);
-        printf("\nWelcome %s! Your icon is 'O'.", player2);
-
-        system("pause");
-        system("cls");
-        box();
-        input();
-        printf("\n\n\n\t\t\t\tGAME OVER\n");
-        system("pause");
-        goto Label1;
-        break;
-
-    case 2:
-        system("cls");
-        printf("\n\n\t\t\t\t:_INSTRUCTIONS:_\n");
-        printf("\n\tThe game is played on a grid that's 3 squares by 3 squares.\n");
-        printf("\tYou are X, your friend is O. Players take turns putting their marks in empty squares.\n");
-        printf("\tThe first player to get 3 of her marks in a row (up, down, across, or diagonally) is the winner.\n");
-        printf("\tWhen all 9 squares are full, the game is over.\n\n\t\t\t");
-        system("pause");
-        goto Label1;
-        break;
-
-    case 3:
-        exit(1);
-        break;
-
-    default:
-        printf("\nInvalid Choice\n");
-    }
+    system("Color 3F"); 
+    TicTacToe game;
+    game.displayMenu();
+    return 0;
 }
